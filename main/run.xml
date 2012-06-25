@@ -1,0 +1,82 @@
+<project name="PSOBatchImporter" default="run" basedir=".">
+	<description>
+		Runs the PSO Batch Importer
+    </description>
+	<!-- set global properties for this build -->
+	<property environment="env" />
+	<property name="build.sysclasspath" value="ignore" />
+	<property environment="env" />
+	<property name="lib" location="lib" />
+	<property name="completed" location="content/completed"/>
+	<property name="errors" location="content/errors"/>
+	<property name="debug" location="content/debug"/>
+	<property name="completedArchive" location="${completed}/archive" />
+	<property name="errorArchive" location="${errors}/archive" />
+	
+
+
+	
+	<path id="classpath-deploy">
+			
+		<path>
+			<fileset dir="build">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+	
+		<path>
+			<fileset dir="${lib}">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+		
+		<pathelement path="config"/>
+	</path>
+	
+	
+	<target name="createfolders">
+		<mkdir dir="${completed}"/>
+		<mkdir dir="${errors}"/>
+		<mkdir dir="${debug}"/>
+		
+	</target>
+	<target name="archiveCompleted">
+	    <move todir="${completedArchive}">
+	        <fileset dir="${completed}" >
+	                <include name="importbatch*" />
+	        </fileset>
+	    </move>
+	</target>
+	
+	<target name="archiveError">
+	    <move todir="${errorArchive}">
+	        <fileset dir="${errors}" >
+	                <include name="importbatch*" />
+	        </fileset>
+	    </move>
+	</target>	
+	
+	<target name="run" depends="createfolders,archiveCompleted, archiveError">
+		<echo>Running Impoter</echo>
+		<path id="classpath" refid="classpath-deploy" />
+			<java
+			classname="com.percussion.pso.importer.Main"
+			classpathref="classpath"
+			jvmversion="1.5">
+			<arg value="-config=config/spring-custom.xml"/>
+		</java>
+    </target>
+
+	<target name="createfolders,run-service" >
+			<echo>Running Impoter Service</echo>
+			<path id="classpath" refid="classpath-deploy" />
+				<java
+				classname="com.percussion.pso.importer.Main"
+				classpathref="classpath"
+				jvmversion="1.5">
+					<arg value="-service"/>
+					
+			</java>
+	</target>
+	
+</project>

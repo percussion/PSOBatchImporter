@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/psolib/!svn/ver/4917/PSOBatchImporter/main/config
+END
+CatalogManager.properties
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/psolib/!svn/ver/4377/PSOBatchImporter/main/config/CatalogManager.properties
+END
+spring.xml
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/psolib/!svn/ver/4917/PSOBatchImporter/main/config/spring.xml
+END
+log4j.xml
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/psolib/!svn/ver/4386/PSOBatchImporter/main/config/log4j.xml
+END

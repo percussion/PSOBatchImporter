@@ -1,0 +1,152 @@
+<project name="PSOBatchImporter" default="build" basedir=".">
+	<description>
+		Builds the PSO Batch Importer
+    </description>
+	<!-- set global properties for this build -->
+	<property environment="env" />
+	<property name="build.sysclasspath" value="ignore" />
+
+	<property name="src" location="src"/>
+
+	<property environment="env" />
+
+	<property name="build" location="build"/>
+	
+	<property name="importer-jarname" value="pso-importer.jar"/>
+	<property name="rxws-jarname" value="pso-rxws.jar"/>
+	<property name="rxws-jarname-stubs" value="pso-rxws-generated.jar" />
+	
+	<property name="classes" location="${build}/classes"/>
+	<property name="lib" location="lib" />
+	<property name="debug" location="content/debug"/>
+	<property name="completed" location="content/completed"/>
+	<property name="errors" location="content/errors"/>
+	<property name="completedArchive" location="${completed}/archive"/>
+	<property name="errorArchive" location="${errors}/archive"/>
+
+
+
+	
+	<path id="global.class.path">
+		<fileset dir="${lib}">
+			<include name="*.jar" />
+		</fileset>
+		<pathelement location="${classes}" />
+	</path>
+	 
+
+	<!-- <target name="compile-stubs">
+			<javac srcdir="${src-stubs}" destdir="${classes}" debug="true" source="1.5" 
+				classpathref="global.class.path" />
+	</target>
+	 -->
+	<target name="compile" >
+		<javac srcdir="${src}" destdir="${classes}" debug="true" source="1.5" 
+			classpathref="global.class.path" />
+	</target>
+		
+		
+	<target name="rxws-jar">
+			<jar jarfile="${build}/${rxws-jarname}" basedir="${classes}">
+				<include name="com/percussion/pso/rxws/**" />
+			</jar>
+	</target>
+	
+	<target name="importer-jar">
+			<jar jarfile="${build}/${importer-jarname}" basedir="${classes}">
+				<include name="com/percussion/pso/importer/**" />
+			</jar>
+	</target>
+	
+	<target name="setup">
+		<mkdir dir="${build}"/>
+		<mkdir dir="${classes}"/>
+		<mkdir dir="${debug}"/>
+		<mkdir dir="${completed}"/>
+		<mkdir dir="${completedArchive}"/>
+		<mkdir dir="${errors}"/>
+		<mkdir dir="${errorArchive}"/>
+	</target>
+	<target name="build" depends="setup,compile,importer-jar,rxws-jar">
+
+	</target>
+	<target name="clean">
+		<delete dir="${build}"/>
+	</target>
+	
+	<target name="dist-src" depends="build">
+			<zip destfile="${build}/${ant.project.name}.zip">
+				<zipfileset dir="." prefix="${ant.project.name}"> 
+					<include name="src/**"/>
+					<include name="config/**"/>
+					<include name="content/completed"/>
+					<include name="content/debug"/>
+					<include name="content/errors"/>
+					<include name="content/TEMP"/>
+					<include name="content/input"/>
+					<include name="content/example_import_xml.xsl"/>
+					<include name="content/pathutils.xsl"/>
+					<include name="log"/>
+					<include name="run.xml" />
+					<include name="build.xml" />
+					<include name="import.bat" />
+				</zipfileset>
+				<zipfileset dir="${build}" prefix="${ant.project.name}/build">
+					<include name="*.jar" />
+				</zipfileset>
+				<zipfileset dir="${lib}" prefix="${ant.project.name}/lib">
+					<include name="*.jar" />
+				</zipfileset>
+			</zip>
+		</target>
+	
+	<target name="dist-bin" depends="build">
+		<zip destfile="${build}/${ant.project.name}.zip">
+			<zipfileset dir="." prefix="${ant.project.name}"> 
+				<include name="config/**"/>
+				<include name="content/completed"/>
+				<include name="content/debug"/>
+				<include name="content/errors"/>
+				<include name="content/TEMP"/>
+				<include name="content/input"/>
+				<include name="content/example_import_xml.xsl"/>
+				<include name="content/pathutils.xsl"/>
+				<include name="log"/>
+				<include name="run.xml" />
+				<include name="import.bat" />
+				<include name="readme.txt" />
+			</zipfileset>
+			<zipfileset dir="${build}" prefix="${ant.project.name}/build">
+				<include name="*.jar" />
+			</zipfileset>
+			<zipfileset dir="${lib}" prefix="${ant.project.name}/lib">
+				<include name="*.jar" />
+			</zipfileset>
+		</zip>
+	</target>
+	
+	<target name="dist-bin-rss" depends="build">
+		<zip destfile="${build}/RSSFeedImporter.zip">
+			<zipfileset dir="." prefix="RSSFeedImporter"> 
+				<include name="config/**"/>
+				<include name="content/completed"/>
+				<include name="content/debug"/>
+				<include name="content/errors"/>
+				<include name="log"/>
+				<include name="run.xml" />
+				<include name="import.bat" />
+				<include name="readme.txt" />
+			</zipfileset>
+			<zipfileset dir="${build}" prefix="RSSFeedImporter/build">
+				<include name="*.jar" />
+			</zipfileset>
+			<zipfileset dir="${lib}" prefix="RSSFeedImporter/lib">
+				<include name="*.jar" />
+			</zipfileset>
+		</zip>
+	</target>	
+	<target name="deploy">
+		<ant antfile="deploy.xml" inheritall="true" />
+	</target>
+	
+</project>

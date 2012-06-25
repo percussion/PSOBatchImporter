@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!-- Sample News Article to be migrated into CMS. -->
+<importer>
+
+	<!--
+		Import Root defines the root folder to compare when matching for
+		uniqueness Often this would be the same as the site root to prevent
+		any items outside of the current site from being identified as the
+		same item.
+	-->
+	<!--
+		Use navigation as the keyField if the item is a Navon or NavTree. The
+		item is located based upon the folder path. These nav items should
+		already exist. You can use the PrepareNavProcessor to let the system
+		create them and the subMenu Structure
+	-->
+
+
+	<!--<item type="rffNavTree" importRoot="//Sites/CorporateInvestments"
+		keyField="navigation" communityName="Corporate_Investments_Admin">
+-->
+		<!--
+			Multiple paths can be defined. These should be within the importRoot
+			structure if defined
+		--><!--
+		<paths>
+			<path>//Sites/CorporateInvestments</path>
+		</paths>
+		<fields>
+			<field name="displaytitle" value="Hello" />
+		</fields>
+	</item>
+-->
+	<item type="rffNavon" importRoot="//Sites/CorporateInvestments/AboutCorporateInvestments/PressReleases" keyField="navigation"
+		communityName="Corporate_Investments_Admin">
+		<paths>
+			<path>//Sites/CorporateInvestments/AboutCorporateInvestments/PressReleases</path>
+		</paths>
+		<fields>
+			<field name="sys_title" value="PressReleases" />
+			<field name="displaytitle" value="Press Releases" />
+			<field name="no_selector" value="ciau" />
+		</fields>
+
+		<related slot="rffNavLandingPage">
+			<relationship template="rffSnTitleLink">
+				<item updateType="ref" importRoot="//Sites/CorporateInvestments"
+					keyField="sys_title">
+					<fields>
+						<field name="sys_title" value="Corporate Investments Press Releases" />
+					</fields>
+				</item>
+			</relationship>
+		</related>
+		<related slot="rffNavImage">
+			<relationship template="rffSnNavImageLink">
+				<item updateType="ref" importRoot="//Sites/CorporateInvestments"
+					keyField="sys_title">
+					<fields>
+						<field name="sys_title" value="About Corporate Investments Section Image (AU)" />
+					</fields>
+				</item>
+			</relationship>
+		</related>
+
+	</item>
+
+
+<item type="rffNavon" importRoot="//Sites/CorporateInvestments/AboutCorporateInvestments/PressReleases/2009" keyField="navigation"
+		communityName="Corporate_Investments_Admin">
+		<paths>
+			<path>//Sites/CorporateInvestments/AboutCorporateInvestments/PressReleases/2009</path>
+		</paths>
+		<fields>
+			<field name="sys_title" value="2009" />
+			<field name="displaytitle" value="2009" />
+			<field name="no_selector" value="ciau" />
+		</fields>
+
+		<related slot="rffNavLandingPage">
+			<relationship template="rffSnTitleLink">
+				<item updateType="ref" importRoot="//Sites/CorporateInvestments"
+					keyField="sys_title">
+					<fields>
+						<field name="sys_title" value="Imported Press Release 1" />
+					</fields>
+				</item>
+			</relationship>
+		</related>
+		<related slot="rffNavImage">
+			<relationship template="rffSnNavImageLink">
+				<item updateType="ref" importRoot="//Sites/CorporateInvestments"
+					keyField="sys_title">
+					<fields>
+						<field name="sys_title" value="About Corporate Investments Section Image (AU)" />
+					</fields>
+				</item>
+			</relationship>
+		</related>
+
+	</item>
+
+	<item type="rffGeneric" importRoot="//Sites/CorporateInvestments"
+		keyField="sys_title" communityName="Corporate_Investments">
+		<paths>
+			<path>//Sites/CorporateInvestments/AboutCorporateInvestments/PressReleases</path>
+		</paths>
+		<fields>
+			<field name="sys_title" value="Press Landing Page" />
+			<field name="body">
+				<div class="rxbodyfield">
+					<p>Imported Body of Press Landing Page</p>
+
+				</div>
+			</field>
+			<field name="callout">
+				<div class="rxbodyfield">
+					<p>Imported Callout of press release</p>
+
+				</div>
+			</field>
+			<field name="displaytitle" value="Imported Press Release 1" />
+			<field name="sys_contentstartdate" value="2009-10-12" />
+			<field name="sys_reminderdate" value="2009-10-12" />
+			<field name="sys_contentexpirydate" value="2090-10-12" />
+			<field name="description" value="The description" />
+			<field name="keywords" value="keywords" />
+			<field name="usage" value="N" />
+		</fields>
+
+
+		<related slot="rffImageLink">
+
+			<relationship template="rffSnImage">
+				<item updateType="ref" type="rffImage" communityName="Corporate_Investments"
+					importRoot="//Sites/CorporateInvestments" keyField="sys_title">
+					<fields>
+						<field name="sys_title" value="percussion_logo.jpg" />
+					</fields>
+				</item>
+			</relationship>
+
+
+		</related>
+
+
+	</item>
+
+	<item type="rffPressRelease" importRoot="//Sites/CorporateInvestments"
+		keyField="sys_title" communityName="Corporate_Investments">
+		<paths>
+			<path>//Sites/CorporateInvestments/AboutCorporateInvestments/PressReleases/2009</path>
+		</paths>
+		<fields>
+			<field name="sys_title" value="Imported Press Release 1" />
+			<field name="body">
+				<div class="rxbodyfield">
+					<p>Imported Body of press release 1</p>
+					<p>Embeded inline image</p>
+					<img src="images/percussion_logo.jpg" alt="image_alt" />
+					<p>Inline Link</p>
+					<a href="/mysite/item634.html">Imported Press Release 2</a>
+					<p>Below is a snippet rffSnTitleLink</p>
+					<p>The body of this snippet will be replaced with the live
+						contents.
+						The Press Landing page we have added an image to the rffImageLink
+						slot above</p>
+					<a title="Press Landing Page" href="/AboutCorporateInvestments/item634.html">
+						<img src="/Images/CreditCard/item442.gif" alt="EIHomeEquityCreditCard"
+							border="0" height="100" width="145" />
+					</a>
+					<p>List of external links (Will be converted to ExternalLink items
+						- it will not duplicate these)</p>
+					<ul>
+						<li>
+							<a href="http://news.bbc.co.uk">BBC</a>
+						</li>
+					</ul>
+					<p>Contact items below in regular slot:</p>
+				</div>
+			</field>
+			<field name="callout">
+				<div class="rxbodyfield">
+					<p>Imported Callout of press release 1</p>
+
+				</div>
+			</field>
+			<field name="pr_summary">
+				<div class="rxbodyfield">
+					<p>Imported Summary of press release 1</p>
+				</div>
+			</field>
+			<field name="displaytitle" value="Imported Press Release 1" />
+			<field name="sys_contentstartdate" value="2009-10-12" />
+			<field name="sys_reminderdate" value="2009-10-12" />
+			<field name="sys_contentexpirydate" value="2090-10-12" />
+			<field name="description" value="The description" />
+			<field name="keywords" value="keywords" />
+			<field name="includehome" value="yes" />
+			<field name="pr_type" value="PRODUCTRELATED" />
+		</fields>
+
+		<related slot="rffContacts">
+			<!--
+				If an item is in multiple folders we add the folder to the
+				relationship that we need to link to.
+			-->
+			<relationship template="rffSnNameAndAddress" folder="//Sites/CorporateInvestments/AboutCorporateInvestments/Contacts2">
+				<item type="rffContacts" importRoot="//Sites/CorporateInvestments"
+					communityName="Corporate_Investments" keyField="sys_title">
+					<fields>
+						<field name="sys_title" value="Fred Blogs" />
+						<field name="displaytitle" value="Fred Blogs" />
+						<field name="firstname" value="Fred" />
+						<field name="lastname" value="Blogs" />
+
+					</fields>
+					<paths>
+						<path>//Sites/CorporateInvestments/AboutCorporateInvestments/Contacts</path>
+						<path>//Sites/CorporateInvestments/AboutCorporateInvestments/Contacts2</path>
+					</paths>
+				</item>
+			</relationship>
+		</related>
+
+	</item>
+
+
+
+
+	<item type="rffPressRelease" importRoot="//Sites/CorporateInvestments"
+		keyField="sys_title" communityName="Corporate_Investments">
+
+		<paths>
+			<path>//Sites/CorporateInvestments/AboutCorporateInvestments/PressReleases/2009</path>
+		</paths>
+		<fields>
+			<field name="sys_title" value="Imported Press Release 2" />
+			<field name="body">
+				<div class="rxbodyfield">
+					<p>Imported Body of press release Test 2</p>
+				</div>
+			</field>
+			<field name="callout">
+				<div class="rxbodyfield">
+					<p>Imported Callout of press release Test 2</p>
+				</div>
+			</field>
+			<field name="pr_summary">
+				<div class="rxbodyfield">
+					<p>Imported Summaryof press release Test 2</p>
+				</div>
+			</field>
+			<field name="displaytitle" value="Imported Press Release 2" />
+			<field name="sys_contentstartdate" value="2009-10-12" />
+			<field name="sys_reminderdate" value="2009-10-12" />
+			<field name="sys_contentexpirydate" value="2090-10-12" />
+			<field name="description" value="The description" />
+			<field name="keywords" value="keywords" />
+			<field name="includehome" value="yes" />
+			<field name="pr_type" value="PRODUCTRELATED" />
+		</fields>
+
+	</item>
+
+	<item type="rffGeneric" importRoot="//Sites/CorporateInvestments"
+		keyField="sys_title" communityName="Corporate_Investments">
+		<paths>
+			<path>//Sites/CorporateInvestments/AboutCorporateInvestments/MultiFolder1</path>
+			<path>//Sites/CorporateInvestments/AboutCorporateInvestments/MultiFolder2</path>
+		</paths>
+		<fields>
+			<field name="sys_title" value="Item in multiple folders" />
+			<field name="body">
+				<div class="rxbodyfield">
+					<p>This item is in two folders</p>
+				</div>
+			</field>
+			<field name="callout">
+				<div class="rxbodyfield">
+					<p>This item is in two folders</p>
+				</div>
+			</field>
+			<field name="pr_summary">
+				<div class="rxbodyfield">
+					<p>This item is in two folders</p>
+				</div>
+			</field>
+			<field name="displaytitle" value="Item in multiple folders" />
+			<field name="sys_contentstartdate" value="2009-10-14" />
+			<field name="sys_reminderdate" value="2009-10-14" />
+			<field name="sys_contentexpirydate" value="2090-10-14" />
+			<field name="description" value="The description" />
+			<field name="keywords" value="keywords" />
+		</fields>
+	</item>
+
+</importer>

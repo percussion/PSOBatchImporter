@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<!--
+		Percussion login details below. Endpoint address is url to Percussion
+		server including port - Community is the main community content is to
+		be created in. Each feed will change this if necessary User must have
+		access to all communities that will be imported and should be allowed
+		to do everything that the import config would required if the user was
+		manually making the changes.
+	-->
+	<bean id="contextService1" class="com.percussion.pso.rxws.item.RxWsContext">
+		<property name="endPointAddress" value="http://localhost:9992" />
+		<property name="communityName" value="Corporate_Investments" />
+		<property name="user" value="admin2" />
+		<property name="password" value="demo" />
+	</bean>
+
+	<bean id="scheduleFactory"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="schedulerName" value="importer" />
+		<property name="autoStartup" value="false" />
+		<property name="triggers">
+			<list>
+				<!--			 Choose feed1Trigger or feed1CronTrigger See Below. -->
+				<ref bean="defaultTrigger" />
+				<!--			 	  ref bean="feed1CronTrigger" /> 	-->
+			</list>
+		</property>
+	</bean>
+
+	<!--
+		Use this trigger to run import on a regular repeat. Times are in
+		miliseconds
+	-->
+	<bean id="defaultTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="feed1JobDetail" />
+		<property name="startDelay" value="1000" />
+		<!-- <property name="repeatInterval" value="180000" />  -->
+		<property name="repeatInterval" value="600000" />
+	</bean>
+	<!--
+		Use this to schedule a specific times following a cron expression See
+		http://quartz.sourceforge.net/javadoc/org/quartz/CronTrigger.html
+	-->
+	<bean id="feed1CronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="feed1JobDetail" />
+		<!-- run every morning at 6 AM -->
+		<property name="cronExpression" value="0 0 6 * * ?" />
+	</bean>
+
+
+	<bean id="feed1JobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="defaultJobList" />
+		<property name="targetMethod" value="runJob" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+
+	<!-- Job Setup End -->
+	<!--
+		Make sure each feed is run in order with single job. Running in
+		parallel may have unexpected results
+	-->
+
+
+	<bean id="defaultJobList" class="com.percussion.pso.importer.ImportJobList">
+		<property name="jobs">
+			<list>
+				<!--   <ref bean="corporate_delete_folders_job"/>-->
+				<ref bean="corporate_xml_import_job" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="corporate_delete_folders_job" autowire="byType"
+		class="com.percussion.pso.importer.DeleteFoldersJob">
+		<property name="folderPaths">
+			<list>
+				<value>//Sites/ImportExample</value>
+			</list>
+		</property>
+		<property name="name" value="Enterprise Investments XML Import 1" />
+	</bean>
+
+	<bean id="corporate_xml_import_job" class="com.percussion.pso.importer.ImportJob">
+		<property name="importItemConsumer" ref="itemConsumer" />
+		<property name="importItemProducer" ref="corporateFolderProducer" />
+		<property name="name" value="Corporate Investments XML Import 1" />
+	</bean>
+
+
+
+	<!-- Producers Below -->
+
+	<bean id="corporateFolderProducer" autowire="byType"
+		class="com.percussion.pso.importer.impl.FolderTransformProducer">
+		<property name="folderName" value="content/input" />
+		<property name="stylesheetPath" value="content/example_import_xml.xsl" />
+		<property name="transPath" value="content/debug" />
+		<property name="removeItems" value="false" />
+		<property name="xslParams">
+			<map>
+				<entry key="importRoot">
+					<value>//Sites/CorporateInvestments</value>
+				</entry>
+				<entry key="communityName">
+					<value>Corporate_Investments</value>
+				</entry>
+
+			</map>
+		</property>
+	</bean>
+
+
+	<!-- Consumer -->
+	<bean id="itemConsumer" class="com.percussion.pso.importer.impl.ItemConsumer" autowire="byType">
+		<property name="itemsProcessor" ref="pipelineItemsProcessor" />
+		<property name="maxBatchSize" value="100" />
+	<!-- 	<property name="clearLocators" value="true" /> -->
+	
+	</bean>
+
+	<!--  Processors Below Here -->
+
+
+
+
+	<!--
+		The pipeline below outlines the set of actions the import items go
+		through each bean may have more properties defined further down
+	-->
+	<bean id="pipelineItemsProcessor" class="com.percussion.pso.importer.impl.PipelineItemsProcessor">
+		<property name="itemProcessors">
+			<list>
+				<!--
+					Create xml fiels with a representation of each item and any errors
+					This could be moved to different places in the pipeline and will
+					show the state of the item at that point
+				-->
+				
+				<!-- Make sure navTree for site is created so navons will be available
+				and linked when new folders are created -->
+				<!--<ref bean="prepareNavProcessor" />-->
+				
+				<!-- Required if items are defined inline to slot relationships This
+				pulls them out to the root of the XML Structure -->
+				<ref bean="extractRelatedItemsProcessor" />
+				<!--
+					Extract file information from url or local file and resize images
+					if necessary
+				-->
+				<ref bean="fileProcessor" />
+				<!--
+					Make sure all imported items are in an editable state or have been
+					created
+				-->
+				<ref bean="prepareItemsProcessor" />
+
+				<!-- Update items in Rhythmyx with whatever vlues have been defined -->
+				<ref bean="updateItemsProcessor" />
+
+				
+				<ref bean="updateInlineLinksProcessor" />
+				<!-- Checkin items and return them to previous state -->
+				<ref bean="releaseItemsProcessor" />
+				<!-- Make any required transitions to items -->
+				<ref bean="workflowProcessor" />
+				<!-- Output current state of item to xml files for debugging
+				Move this to different places in this pipeline to test
+				at those different states -->
+				<ref bean="outputBatchAsXMLProcessor" />
+
+			</list>
+		</property>
+	</bean>
+
+	<bean id="outputBatchAsXMLProcessor"
+		class="com.percussion.pso.rxws.item.processor.impl.OutputBatchAsXMLProcessor">
+		<property name="outputFolder" value="content/completed" />
+		<property name="errorFolder" value="content/errors" />
+	</bean>
+
+
+	<bean id="fileProcessor"
+
+		class="com.percussion.pso.rxws.item.processor.impl.FileProcessor">
+		<property name="tempdir" value="content/TEMP" />
+		<property name="fileBase" value="content/example_resources" />
+
+		<property name="fields">
+			<map>
+				<entry key="rffImage.img1">
+					<map>
+						<entry key="type" value="image" />
+						<!-- Image can be resized to max height / width -->
+						<!--  <entry key="width" value="160" /> -->
+					</map>
+				</entry>
+
+			</map>
+		</property>
+	</bean>
+
+	<bean id="updateInlineLinksProcessor" autowire="byType"
+
+		class="com.percussion.pso.rxws.item.processor.impl.UpdateInlineLinksProcessor">
+		<property name="inlineLinkTemplateTypeMap">
+			<map>
+				<entry key="rxhyperlink">
+					<map>
+						<entry key="rffGeneric" value="rffPgCiGeneric" />
+						<entry key="rffPressRelease" value="rffPgCiPressRelease" />
+
+					</map>
+				</entry>
+				<entry key="rximage">
+					<map>
+						<entry key="rffImage" value="rffBnImage" />
+					</map>
+				</entry>
+				<entry key="rxvariant">
+					<map>
+						<entry key="rffExternalLink" value="rffSnLink" />
+						<entry key="rffGeneric" value="rffSnTitleLink" />
+					</map>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="ephoxFieldProcessor"
+		class="com.percussion.pso.rxws.item.processor.impl.EphoxFieldProcessor">
+		<property name="fields">
+			<list>
+				<value>body</value>
+				<value>callout</value>
+				<value>pr_summary</value>
+			</list>
+		</property>
+	</bean>
+
+
+
+	<bean id="prepareNavProcessor"
+		class="com.percussion.pso.rxws.item.processor.impl.PrepareNavProcessor"
+		autowire="byType">
+
+		<property name="navTreeDefaultFields">
+			<map>
+				<entry key="displaytitle" value="importedNavItem" />
+				<entry key="nt_theme" value="ci" />
+				<entry key="no_propagate" value="1" />
+			</map>
+		</property>
+		<property name="siteDefinitions">
+			<list>
+				<ref bean="newSiteDef" />
+			</list>
+		</property>
+		<property name="navTreeType" value="rffNavTree" />
+		<property name="navonType" value="rffNavon" />
+	</bean>
+	<bean id="newSiteDef" class="com.percussion.pso.importer.manager.SiteDefinition">
+		<property name="navTreeTitle" value="Home" />
+		<property name="path" value="//Sites/ImportExample" />
+		<property name="navTreeCommunity" value="Corporate_Investments_Admin" />
+	</bean>
+
+	<bean id="extractRelatedItemsProcessor"
+		class="com.percussion.pso.rxws.item.processor.impl.ExtractRelatedItemsProcessor"
+		autowire="byType">
+	</bean>
+
+	<bean id="prepareItemsProcessor"
+		class="com.percussion.pso.rxws.item.processor.impl.PrepareItemsProcessor"
+		autowire="byType">
+	</bean>
+
+	<bean id="updateItemsProcessor"
+		class="com.percussion.pso.rxws.item.processor.impl.UpdateItemsProcessor"
+		autowire="byType">
+	</bean>
+
+
+	<bean id="releaseItemsProcessor"
+		class="com.percussion.pso.rxws.item.processor.impl.ReleaseItemsProcessor"
+		autowire="byType">
+		<property name="checkinOnly" value="false" />
+	</bean>
+
+
+	<bean id="itemManager" class="com.percussion.pso.importer.manager.ItemManager"
+		autowire="byType">
+	</bean>
+
+	<bean id="itemLocatorManager" class="com.percussion.pso.importer.manager.ItemLocatorManager"
+		autowire="byType">
+		<!--
+			If the followin property is set the items can only be updated if the
+			value of the field specified is 1 or true
+		-->
+		<!--
+			<property name="allowUpdateField" value="allowImporterUpdates"/>
+		-->
+	</bean>
+
+	<bean id="configManager"
+		class="com.percussion.pso.importer.config.manager.RhythmyxConfigManager"
+		autowire="byType">
+
+	</bean>
+
+
+	<!-- Converters -->
+	<bean id="remoteItemConverter" autowire="byType"
+		class="com.percussion.pso.rxws.converter.impl.FromRemoteItemToLocalItemImpl">
+	</bean>
+	<bean id="localItemConverter" autowire="byType"
+		class="com.percussion.pso.rxws.converter.impl.FromLocalItemToRemoteItemImpl">
+	</bean>
+
+	<bean id="remoteFieldConverter"
+		class="com.percussion.pso.rxws.converter.impl.FromRemoteFieldToLocalFieldImpl">
+	</bean>
+
+	<bean id="localFieldConverter"
+		class="com.percussion.pso.rxws.converter.impl.FromLocalFieldToRemoteFieldDispatch">
+		<property name="converterFieldNameMap">
+			<map>
+				<entry key="body">
+					<bean
+						class="com.percussion.pso.rxws.converter.impl.FromLocalXMLFieldToRemoteEphoxField" />
+				</entry>
+				<entry key="callout">
+					<bean
+						class="com.percussion.pso.rxws.converter.impl.FromLocalXMLFieldToRemoteEphoxField" />
+				</entry>
+				<entry key="pr_summary">
+					<bean
+						class="com.percussion.pso.rxws.converter.impl.FromLocalXMLFieldToRemoteEphoxField" />
+				</entry>
+			</map>
+		</property>
+		<property name="converterTypeMap">
+			<map>
+				<entry key="java.util.ArrayList">
+					<bean
+						class="com.percussion.pso.rxws.converter.impl.FromLocalMultiFieldToRemoteMultiField" />
+				</entry>
+				<entry key="java.io.File">
+					<bean
+						class="com.percussion.pso.rxws.converter.impl.FromLocalFileFieldToRemoteFileField" />
+				</entry>
+
+			</map>
+
+		</property>
+	</bean>
+
+	<bean id="workflowProcessor" autowire="byType"
+		class="com.percussion.pso.rxws.item.processor.impl.WorkflowProcessor">
+		<property name="transitionMap">
+			<map>
+				<!--
+					Need workflow id. Create an entry for each workflow that needs
+					transitioning
+				-->
+				<!-- Standard Workflow -->
+				<entry key="5">
+					<map>
+						<!-- Value is defined in transition as trigger not transition name -->
+						<!--
+							Any imported items in the states defined with an entry will be
+							transitioned
+						-->
+						<!--
+							After transition the process is repeated until no items are in
+							defined states
+						-->
+						<entry key="Draft" value="DirecttoPublic" />
+						<entry key="Quick Edit" value="ReturnToPublic" />
+
+					</map>
+				</entry>
+				<!-- Simple Workflow -->
+				<entry key="4">
+					<map>
+						<!-- Value is defined in transition as trigger not transition name -->
+						<!--
+							Any imported items in the states defined with an entry will be
+							transitioned
+						-->
+						<!--
+							After transition the process is repeated until no items are in
+							defined states
+						-->
+						<entry key="Draft" value="DirecttoPublic" />
+						<entry key="Quick Edit" value="ReturnToPublic" />
+
+					</map>
+				</entry>
+
+			</map>
+		</property>
+	</bean>
+
+
+	<bean id="transformerFactory" class="net.sf.saxon.TransformerFactoryImpl"
+		autowire="byType">
+	</bean>
+
+
+</beans>
