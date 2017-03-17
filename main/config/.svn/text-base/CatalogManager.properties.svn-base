@@ -1,6 +1,0 @@
-verbosity=4
-catalogs=../dtds/catalog.xml
-prefer=public
-static-catalog=yes
-relative-catalogs=no
-catalog-class-name=org.apache.xml.resolver.Resolver
