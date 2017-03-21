@@ -62,18 +62,22 @@
 			<java
 			classname="com.percussion.pso.importer.Main"
 			classpathref="classpath"
-			jvmversion="1.5">
+			jvmversion="1.8">
+			
 			<arg value="-config=config/spring-custom.xml"/>
 		</java>
     </target>
 
 	<target name="createfolders,run-service" >
-			<echo>Running Impoter Service</echo>
+			<echo>Running Importer Service</echo>
 			<path id="classpath" refid="classpath-deploy" />
 				<java
 				classname="com.percussion.pso.importer.Main"
 				classpathref="classpath"
-				jvmversion="1.5">
+				jvmversion="1.8">
+				<jvmarg value="-Xdebug"/>
+				<jvmarg value="-Xnoagent"/>
+				<jvmarg value="-Xrunjdwp:transport=dt_socket,address=5556,server=y,suspend=y"/>
 					<arg value="-service"/>
 					
 			</java>
