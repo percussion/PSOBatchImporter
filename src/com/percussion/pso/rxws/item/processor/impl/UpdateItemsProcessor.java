@@ -26,7 +26,7 @@ public class UpdateItemsProcessor implements RxWsItemProcessor {
     	log.debug("updating items");
     	manager.updateRx(items);
     	log.debug("updating paths");
-    	manager.updatePaths(items,reloadItem);
+    	manager.updatePaths(items);
      	log.debug("updating relationships");
     	manager.updateRelationships(items);
     	log.debug("passing "+items.size()+ " items");

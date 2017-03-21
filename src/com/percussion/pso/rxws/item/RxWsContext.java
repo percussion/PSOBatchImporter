@@ -293,7 +293,19 @@ public class RxWsContext implements IImportContext {
     try
     {
        URL url = new URL(srcAddress);
-       return endPointAddress + "/" + url.getPath();
+       
+       if(endPointAddress!=null && endPointAddress.trim()!= ""){
+    	   if(endPointAddress.endsWith("/")){
+    		   endPointAddress = endPointAddress.substring(0, endPointAddress.length()-1);
+    	   }
+       }
+       
+       if(url.getPath().startsWith("/")){
+    	   return endPointAddress=endPointAddress+url.getPath();
+       }else{
+    	   return endPointAddress + "/" +url.getPath();
+       }
+        
     }
     catch (MalformedURLException e)
     {
