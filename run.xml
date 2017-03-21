@@ -57,7 +57,7 @@
 	</target>	
 	
 	<target name="run" depends="createfolders,archiveCompleted, archiveError">
-		<echo>Running Impoter</echo>
+		<echo>Running Importer</echo>
 		<path id="classpath" refid="classpath-deploy" />
 			<java
 			classname="com.percussion.pso.importer.Main"
