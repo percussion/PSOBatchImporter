@@ -1,2 +1,6 @@
 /ivy-local.properties
 /build/
+/bin/
+/.settings/
+/.classpath
+/error.log
