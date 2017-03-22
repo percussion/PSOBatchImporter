@@ -1,8 +1,8 @@
 PSOBatchImporter
 =
 
-###Downloads
-
+Downloads
+===
 
 [Download the latest stable snapshot:](http://cdn.percussion.com/downloads/open/psobatchimporter/pso-batch-importer-SNAPSHOT.zip)
 
