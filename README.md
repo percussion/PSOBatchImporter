@@ -6,6 +6,8 @@ Downloads
 
 [Download the latest stable snapshot:](http://cdn.percussion.com/downloads/open/psobatchimporter/pso-batch-importer-SNAPSHOT.zip)
 
+This version is compatible with Rhythmyx 7.3.0, 7.3.1, and 7.3.2.  Prior to running the importer replace the lib/rxwebservices.jar in the Batch Importer directory with the copy from <Rhythmyx Install>/AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/lib/rxwebservices.jar so that the Web Services client matches your Rhythmyx version. 
+
 To configure the batch importer:
 ===
 * All configuration except for logging is done through a spring config file, located "config/spring.xml".
