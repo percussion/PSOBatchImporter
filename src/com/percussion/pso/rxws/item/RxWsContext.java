@@ -301,7 +301,7 @@ public class RxWsContext implements IImportContext {
        }
        
        if(url.getPath().startsWith("/")){
-    	   return endPointAddress=endPointAddress+url.getPath();
+    	   return endPointAddress+url.getPath();
        }else{
     	   return endPointAddress + "/" +url.getPath();
        }
